@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ms" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Papan Pemuka Perjawatan & Analisis Impak PPP - Hospital Miri</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+        .custom-scroll::-webkit-scrollbar {
+            height: 4px;
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        /* Touch target padding fixes for mobile safari/chrome */
+        .touch-btn {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding-bottom: 0 !important; }
+            .glass-card { border: 1px solid #ccc; box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-20 sm:pb-12">
+
+    <!-- Header Utama (Desktop & Mobile Topbar) -->
+    <header class="bg-gradient-to-r from-teal-900 via-teal-800 to-cyan-900 text-white shadow-xl border-b border-teal-700 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/10 p-2.5 sm:p-3 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner shrink-0">
+                        <i class="fa-solid fa-user-doctor text-xl sm:text-3xl text-teal-300"></i>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="bg-teal-500/30 text-teal-200 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border border-teal-400/30 uppercase tracking-wider">HOSPITAL MIRI (BLOK A & B)</span>
+                            <span class="text-[10px] sm:text-xs text-teal-200/80 font-medium">• SARAWAK</span>
+                        </div>
+                        <h1 class="text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight mt-0.5 leading-tight">Analisis Perjawatan & Impak Pinjaman PPP</h1>
+                        <p class="text-xs text-teal-100/90 hidden sm:block mt-0.5">Implikasi Pengoperasian Dwi-Blok akibat 81 Perjawatan Dipinjam Keluar ke PTJ Lain</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 no-print self-end md:self-auto w-full md:w-auto">
+                    <button onclick="window.print()" class="touch-btn flex-1 md:flex-none flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition duration-200 border border-white/20 shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Laporan</span>
+                    </button>
+                    <button onclick="exportCSV()" class="touch-btn flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition duration-200 shadow-md">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Eksport CSV</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-teal-950/90 backdrop-blur-md border-t border-teal-800/60 px-3 py-1.5 overflow-x-auto custom-scroll no-print flex gap-2 text-xs font-medium text-teal-100 hidden sm:flex">
+            <a href="#kpi-section" class="px-3 py-1 rounded-lg bg-teal-800/40 hover:bg-teal-700 whitespace-nowrap active:bg-teal-600 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-chart-line text-teal-300"></i> Metrik Utama
+            </a>
+            <a href="#chart-section" class="px-3 py-1 rounded-lg bg-teal-800/40 hover:bg-teal-700 whitespace-nowrap active:bg-teal-600 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-chart-pie text-teal-300"></i> Carta Jurang & Pinjaman
+            </a>
+            <a href="#table-section" class="px-3 py-1 rounded-lg bg-teal-800/40 hover:bg-teal-700 whitespace-nowrap active:bg-teal-600 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-table text-teal-300"></i> Jadual Data Perjawatan
+            </a>
+            <a href="#impact-section" class="px-3 py-1 rounded-lg bg-teal-800/40 hover:bg-teal-700 whitespace-nowrap active:bg-teal-600 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-triangle-exclamation text-teal-300"></i> Laporan Impak Blok A & B
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Container -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8">
+
+        <!-- Ringkasan Metrik (KPI Cards) -->
+        <div id="kpi-section" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5 scroll-mt-24">
+            <!-- Waran Diluluskan -->
+            <div class="glass-card rounded-2xl p-3 sm:p-5 shadow-sm hover:shadow-md transition border-l-4 border-blue-500">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">Waran Diluluskan</p>
+                        <h3 class="text-xl sm:text-3xl font-bold text-slate-900 mt-0.5 sm:mt-1">269</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Gred U5 - U10</p>
+                    </div>
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base sm:text-xl shrink-0">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pengisian Hakiki -->
+            <div class="glass-card rounded-2xl p-3 sm:p-5 shadow-sm hover:shadow-md transition border-l-4 border-emerald-500">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">Pengisian Hakiki</p>
+                        <h3 class="text-xl sm:text-3xl font-bold text-emerald-600 mt-0.5 sm:mt-1">271</h3>
+                        <p class="text-[10px] sm:text-xs text-emerald-700 font-medium mt-0.5">100.7% (+2)</p>
+                    </div>
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base sm:text-xl shrink-0">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dipinjam ke PTJ Lain -->
+            <div class="glass-card rounded-2xl p-3 sm:p-5 shadow-sm hover:shadow-md transition border-l-4 border-rose-500 bg-rose-50/20">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-600">Dipinjam ke PTJ</p>
+                        <h3 class="text-xl sm:text-3xl font-bold text-rose-600 mt-0.5 sm:mt-1">81</h3>
+                        <p class="text-[10px] sm:text-xs text-rose-700 font-semibold mt-0.5">29.9% Pengisian</p>
+                    </div>
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-base sm:text-xl shrink-0">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tenaga Kerja Sebenar di Premis -->
+            <div class="glass-card rounded-2xl p-3 sm:p-5 shadow-sm hover:shadow-md transition border-l-4 border-amber-500 bg-amber-50/20">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-800">Staf Fizikal Premis</p>
+                        <h3 class="text-xl sm:text-3xl font-bold text-amber-700 mt-0.5 sm:mt-1">190</h3>
+                        <p class="text-[10px] sm:text-xs text-amber-800 font-medium mt-0.5">70.6% Kuasa Kerja</p>
+                    </div>
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-base sm:text-xl shrink-0">
+                        <i class="fa-solid fa-hospital-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualisasi Graf Utama (Desktop & Mobile Layout) -->
+        <div id="chart-section" class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8 scroll-mt-24">
+            
+            <!-- Bar Chart Perbandingan Gred -->
+            <div class="lg:col-span-2 glass-card rounded-2xl p-3.5 sm:p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 pb-2.5 border-b border-slate-100 gap-1.5">
+                        <div>
+                            <h2 class="text-sm sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-teal-600"></i>
+                                Perbandingan Waran vs Pengisian vs Fizikal
+                            </h2>
+                            <p class="text-[11px] sm:text-xs text-slate-500">Agihan mengikut Kod Gaji SSPA Penolong Pegawai Perubatan</p>
+                        </div>
+                        <span class="self-start sm:self-auto inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                            Defisit Fizikal: -81 PPP
+                        </span>
+                    </div>
+                    
+                    <!-- Responsive Chart Wrapper with adaptive height -->
+                    <div class="relative h-60 sm:h-80 w-full">
+                        <canvas id="mainComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Key Grade Metrics Summary Row -->
+                <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 text-center text-[10px] sm:text-xs gap-1.5 sm:gap-2">
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                        <span class="block text-slate-500 font-semibold">U9 / U10</span>
+                        <span class="font-bold text-slate-800">4 Fizikal (0 Pinjam)</span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                        <span class="block text-slate-500 font-semibold">U7</span>
+                        <span class="font-bold text-slate-800">7 Fizikal (3 Pinjam)</span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                        <span class="block text-slate-500 font-semibold">U6 / U7</span>
+                        <span class="font-bold text-slate-800">32 Fizikal (1 Pinjam)</span>
+                    </div>
+                    <div class="p-2 rounded-xl bg-rose-50 border border-rose-200">
+                        <span class="block text-rose-700 font-bold">U5 / U6</span>
+                        <span class="font-extrabold text-rose-900">147 Fizikal (77 Pinjam!)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie/Doughnut Chart Pecahan Pinjaman -->
+            <div class="glass-card rounded-2xl p-3.5 sm:p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <div class="mb-3 pb-2.5 border-b border-slate-100">
+                        <h2 class="text-sm sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-rose-600"></i>
+                            Pecahan 81 PPP Dipinjam
+                        </h2>
+                        <p class="text-[11px] sm:text-xs text-slate-500">Pengedaran jawatan Hospital Miri di PTJ luar</p>
+                    </div>
+                    <div class="relative h-52 sm:h-64 w-full flex items-center justify-center">
+                        <canvas id="loanBreakdownChart"></canvas>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 space-y-1.5 text-xs">
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-rose-50 border border-rose-100">
+                        <span class="flex items-center gap-2 font-bold text-rose-900 text-[11px] sm:text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block shrink-0"></span> Gred U5 (Pelaksana Utama)
+                        </span>
+                        <span class="font-extrabold text-rose-900 text-xs">77 (95.1%)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-amber-50 border border-amber-100">
+                        <span class="flex items-center gap-2 font-semibold text-amber-900 text-[11px] sm:text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shrink-0"></span> Gred U7 (Penyeliaan)
+                        </span>
+                        <span class="font-bold text-amber-900 text-xs">3 (3.7%)</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-blue-50 border border-blue-100">
+                        <span class="flex items-center gap-2 font-semibold text-blue-900 text-[11px] sm:text-xs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block shrink-0"></span> Gred U6 (Senior/Kanan)
+                        </span>
+                        <span class="font-bold text-blue-900 text-xs">1 (1.2%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jadual Data Lengkap dengan Mod Dwi-Paparan (Desktop Table / Mobile Cards) -->
+        <div id="table-section" class="glass-card rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-24">
+            <div class="p-3.5 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/80">
+                <div>
+                    <h2 class="text-sm sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-table text-teal-600"></i>
+                        Jadual Data Perjawatan Penolong Pegawai Perubatan
+                    </h2>
+                    <p class="text-[11px] sm:text-xs text-slate-500">Butiran waran, pengisian hakiki & jumlah fizikal di premis Hospital Miri</p>
+                </div>
+                
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <!-- Mobile View Switcher Toggle -->
+                    <div class="flex items-center bg-slate-200/80 p-0.5 rounded-xl text-xs sm:hidden shrink-0">
+                        <button id="viewTableBtn" onclick="switchMobileView('table')" class="px-2.5 py-1.5 rounded-lg font-bold bg-white text-teal-800 shadow-sm transition">
+                            <i class="fa-solid fa-table"></i> Jadual
+                        </button>
+                        <button id="viewCardBtn" onclick="switchMobileView('card')" class="px-2.5 py-1.5 rounded-lg font-medium text-slate-600 transition">
+                            <i class="fa-solid fa-grip-vertical"></i> Kad
+                        </button>
+                    </div>
+
+                    <!-- Search Input Box -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="tableSearch" onkeyup="filterData()" placeholder="Cari gred / waran..." class="w-full pl-8 pr-3 py-2 sm:py-1.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white min-h-[38px] sm:min-h-[auto]">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicator visual tatalan jadual pada mudah alih -->
+            <div id="scrollHint" class="block sm:hidden bg-teal-50/90 px-3 py-1.5 border-b border-teal-100 text-[10px] text-teal-800 font-medium flex items-center justify-between">
+                <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-left-right text-teal-600 animate-pulse"></i>
+                    <span>Tatal ke kanan untuk semua lajur</span>
+                </span>
+                <span class="text-[9px] bg-teal-200/60 px-1.5 py-0.5 rounded font-bold">Mod Jadual</span>
+            </div>
+
+            <!-- 1. Paparan Jadual Standard (Desktop & Mobile Horizontal Scroll) -->
+            <div id="tableViewContainer" class="overflow-x-auto custom-scroll">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[680px]" id="dataTable">
+                    <thead>
+                        <tr class="bg-slate-100/90 text-slate-700 uppercase text-[10px] sm:text-xs font-semibold tracking-wider border-b border-slate-200">
+                            <th class="py-3 px-3 sm:px-4">Butiran Waran</th>
+                            <th class="py-3 px-3 sm:px-4">Tajuk Perjawatan</th>
+                            <th class="py-3 px-3 sm:px-4 text-center">SSPA</th>
+                            <th class="py-3 px-3 sm:px-4 text-center bg-blue-50/60 text-blue-900">Waran</th>
+                            <th class="py-3 px-3 sm:px-4 text-center bg-emerald-50/60 text-emerald-900">Pengisian</th>
+                            <th class="py-3 px-3 sm:px-4 text-center bg-slate-100 text-slate-800">Status</th>
+                            <th class="py-3 px-3 sm:px-4 text-center bg-rose-100/70 text-rose-900 font-bold">Dipinjam</th>
+                            <th class="py-3 px-3 sm:px-4 text-center bg-amber-100/80 text-amber-900 font-bold">Fizikal Premis</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700" id="tableBody">
+                        <tr class="hover:bg-slate-50 transition data-row">
+                            <td class="py-3 px-3 sm:px-4 font-mono text-[11px] text-slate-500">482, 718</td>
+                            <td class="py-3 px-3 sm:px-4 font-medium text-slate-900">Penolong Pegawai Perubatan, Gred U41/U42/U44</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-[10px] sm:text-xs whitespace-nowrap">U9 / U10</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold bg-blue-50/30">4</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-emerald-600 bg-emerald-50/30">4</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs">0 (Cukup)</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-slate-400 bg-rose-50/20">0</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-teal-800 bg-amber-50/30">4</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition data-row">
+                            <td class="py-3 px-3 sm:px-4 font-mono text-[11px] text-slate-500">495, 719, 1364, 840(a)</td>
+                            <td class="py-3 px-3 sm:px-4 font-medium text-slate-900">Penolong Pegawai Perubatan, Gred U36</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-[10px] sm:text-xs">U7</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold bg-blue-50/30">10</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-emerald-600 bg-emerald-50/30">10</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] sm:text-xs">0 (Cukup)</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-rose-600 bg-rose-50/30">3</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-amber-800 bg-amber-50/30">7</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition data-row">
+                            <td class="py-3 px-3 sm:px-4 font-mono text-[11px] text-slate-500">505, 721, 1135, 1368, 2191</td>
+                            <td class="py-3 px-3 sm:px-4 font-medium text-slate-900">Penolong Pegawai Perubatan, Gred U32 (TBK2)</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-[10px] sm:text-xs whitespace-nowrap">U6 / U7</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold bg-blue-50/30">39</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-emerald-600 bg-emerald-50/30">33</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] sm:text-xs">+6 Kosong</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-rose-600 bg-rose-50/30">1</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-amber-800 bg-amber-50/30">32</td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition bg-rose-50/10 data-row">
+                            <td class="py-3 px-3 sm:px-4 font-mono text-[11px] text-slate-500">503, 718, 890, 1087, 1137, 1702...</td>
+                            <td class="py-3 px-3 sm:px-4 font-medium text-slate-900">Penolong Pegawai Perubatan, Gred U29/U32 (TBK 13Thn)</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold text-[10px] sm:text-xs whitespace-nowrap">U5 / U6</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold bg-blue-50/30">216</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-emerald-600 bg-emerald-50/30">224</td>
+                            <td class="py-3 px-3 sm:px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs">-8 Lebihan</span></td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-rose-700 bg-rose-100/50 text-sm">77</td>
+                            <td class="py-3 px-3 sm:px-4 text-center font-bold text-rose-900 bg-amber-100/50 text-sm">147</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-slate-900 text-white font-bold border-t-2 border-slate-700">
+                        <tr>
+                            <td colspan="3" class="py-3 px-3 sm:px-4 text-right uppercase tracking-wider text-[10px] sm:text-xs text-slate-300">JUMLAH KESELURUHAN</td>
+                            <td class="py-3 px-3 sm:px-4 text-center text-blue-300 text-sm">269</td>
+                            <td class="py-3 px-3 sm:px-4 text-center text-emerald-400 text-sm">271</td>
+                            <td class="py-3 px-3 sm:px-4 text-center text-slate-300 text-[10px] sm:text-xs">-2 Net</td>
+                            <td class="py-3 px-3 sm:px-4 text-center text-rose-400 text-sm sm:text-base bg-rose-950/40">81</td>
+                            <td class="py-3 px-3 sm:px-4 text-center text-amber-300 text-base sm:text-lg bg-amber-950/40">190</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 2. Paparan Kad Ringkas (Khusus Telefon Pintar / Mobile App Card View) -->
+            <div id="cardViewContainer" class="hidden sm:hidden p-3 space-y-3 bg-slate-100/50">
+                <!-- Card U9/U10 -->
+                <div class="glass-card p-3.5 rounded-xl border border-slate-200 space-y-2 mobile-card">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <span class="bg-slate-900 text-white font-bold text-[10px] px-2 py-0.5 rounded">SSPA U9 / U10</span>
+                        <span class="text-[11px] font-mono text-slate-500">Waran #482, 718</span>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-900">Penolong Pegawai Perubatan, Gred U41/U42/U44</h4>
+                    <div class="grid grid-cols-4 gap-1 text-center text-[10px] pt-1">
+                        <div class="bg-blue-50 p-1.5 rounded-lg border border-blue-100">
+                            <span class="block text-slate-500">Waran</span>
+                            <span class="font-bold text-slate-800 text-xs">4</span>
+                        </div>
+                        <div class="bg-emerald-50 p-1.5 rounded-lg border border-emerald-100">
+                            <span class="block text-emerald-700">Pengisian</span>
+                            <span class="font-bold text-emerald-800 text-xs">4</span>
+                        </div>
+                        <div class="bg-rose-50 p-1.5 rounded-lg border border-rose-100">
+                            <span class="block text-rose-700">Dipinjam</span>
+                            <span class="font-bold text-rose-800 text-xs">0</span>
+                        </div>
+                        <div class="bg-amber-100 p-1.5 rounded-lg border border-amber-200">
+                            <span class="block text-amber-900 font-bold">Fizikal</span>
+                            <span class="font-extrabold text-amber-950 text-xs">4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card U7 -->
+                <div class="glass-card p-3.5 rounded-xl border border-slate-200 space-y-2 mobile-card">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <span class="bg-slate-900 text-white font-bold text-[10px] px-2 py-0.5 rounded">SSPA U7</span>
+                        <span class="text-[11px] font-mono text-slate-500">Waran #495, 719...</span>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-900">Penolong Pegawai Perubatan, Gred U36</h4>
+                    <div class="grid grid-cols-4 gap-1 text-center text-[10px] pt-1">
+                        <div class="bg-blue-50 p-1.5 rounded-lg border border-blue-100">
+                            <span class="block text-slate-500">Waran</span>
+                            <span class="font-bold text-slate-800 text-xs">10</span>
+                        </div>
+                        <div class="bg-emerald-50 p-1.5 rounded-lg border border-emerald-100">
+                            <span class="block text-emerald-700">Pengisian</span>
+                            <span class="font-bold text-emerald-800 text-xs">10</span>
+                        </div>
+                        <div class="bg-rose-50 p-1.5 rounded-lg border border-rose-100">
+                            <span class="block text-rose-700 font-bold">Dipinjam</span>
+                            <span class="font-bold text-rose-800 text-xs">3</span>
+                        </div>
+                        <div class="bg-amber-100 p-1.5 rounded-lg border border-amber-200">
+                            <span class="block text-amber-900 font-bold">Fizikal</span>
+                            <span class="font-extrabold text-amber-950 text-xs">7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card U6/U7 -->
+                <div class="glass-card p-3.5 rounded-xl border border-slate-200 space-y-2 mobile-card">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <span class="bg-slate-900 text-white font-bold text-[10px] px-2 py-0.5 rounded">SSPA U6 / U7</span>
+                        <span class="text-[11px] font-mono text-slate-500">Waran #505, 721...</span>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-900">Penolong Pegawai Perubatan, Gred U32 (TBK2)</h4>
+                    <div class="grid grid-cols-4 gap-1 text-center text-[10px] pt-1">
+                        <div class="bg-blue-50 p-1.5 rounded-lg border border-blue-100">
+                            <span class="block text-slate-500">Waran</span>
+                            <span class="font-bold text-slate-800 text-xs">39</span>
+                        </div>
+                        <div class="bg-emerald-50 p-1.5 rounded-lg border border-emerald-100">
+                            <span class="block text-emerald-700">Pengisian</span>
+                            <span class="font-bold text-emerald-800 text-xs">33</span>
+                        </div>
+                        <div class="bg-rose-50 p-1.5 rounded-lg border border-rose-100">
+                            <span class="block text-rose-700">Dipinjam</span>
+                            <span class="font-bold text-rose-800 text-xs">1</span>
+                        </div>
+                        <div class="bg-amber-100 p-1.5 rounded-lg border border-amber-200">
+                            <span class="block text-amber-900 font-bold">Fizikal</span>
+                            <span class="font-extrabold text-amber-950 text-xs">32</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card U5/U6 -->
+                <div class="glass-card p-3.5 rounded-xl border border-rose-300 bg-rose-50/20 space-y-2 mobile-card">
+                    <div class="flex items-center justify-between border-b border-rose-100 pb-2">
+                        <span class="bg-rose-700 text-white font-bold text-[10px] px-2 py-0.5 rounded">SSPA U5 / U6 (KRITIKAL)</span>
+                        <span class="text-[11px] font-mono text-slate-500">Waran #503, 718...</span>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-900">Penolong Pegawai Perubatan, Gred U29/U32 (TBK 13)</h4>
+                    <div class="grid grid-cols-4 gap-1 text-center text-[10px] pt-1">
+                        <div class="bg-blue-50 p-1.5 rounded-lg border border-blue-100">
+                            <span class="block text-slate-500">Waran</span>
+                            <span class="font-bold text-slate-800 text-xs">216</span>
+                        </div>
+                        <div class="bg-emerald-50 p-1.5 rounded-lg border border-emerald-100">
+                            <span class="block text-emerald-700">Pengisian</span>
+                            <span class="font-bold text-emerald-800 text-xs">224</span>
+                        </div>
+                        <div class="bg-rose-100 p-1.5 rounded-lg border border-rose-300">
+                            <span class="block text-rose-800 font-bold">Dipinjam</span>
+                            <span class="font-extrabold text-rose-950 text-xs">77</span>
+                        </div>
+                        <div class="bg-amber-100 p-1.5 rounded-lg border border-amber-300">
+                            <span class="block text-amber-900 font-bold">Fizikal</span>
+                            <span class="font-extrabold text-rose-900 text-xs">147</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKSYEN ANALISIS IMPAK OPERASI (LAPORAN BLOK A & B) -->
+        <div id="impact-section" class="glass-card rounded-2xl p-4 sm:p-8 shadow-md border border-slate-200 space-y-4 sm:space-y-6 scroll-mt-24">
+            <div class="border-b border-slate-200 pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-rose-100 text-rose-700 rounded-xl shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation text-lg sm:text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-xl font-extrabold text-slate-900 leading-snug">Laporan Penilaian Impak Operasi Hospital Miri</h2>
+                        <p class="text-[11px] sm:text-xs text-slate-500">Kesan Kehilangan 81 Perjawatan Dipinjam ke PTJ Luar Terhadap Pengoperasian Dwi-Blok (Blok A & B)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-6 text-xs sm:text-sm text-slate-700">
+                <!-- Impak 1 -->
+                <div class="p-3.5 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h3 class="font-bold text-slate-900 flex items-center gap-2 text-xs sm:text-base">
+                        <i class="fa-solid fa-hospital text-rose-600 shrink-0"></i>
+                        <span>1. Defisit Tenaga Kerja Pelaksana (Gred U5)</span>
+                    </h3>
+                    <p class="text-[11px] sm:text-xs leading-relaxed text-slate-600">
+                        Sebanyak <strong>77 perjawatan Gred U5/U6 dipinjamkan ke PTJ luar</strong>, menyebabkan jumlah PPP fizikal di lapangan merosot daripada 224 orang kepada <strong>147 orang sahaja</strong> (Pengurangan 34.4%). Gred U5 merupakan tulang belakang operasi klinikal harian di wad, dewan bedah, dan kecemasan.
+                    </p>
+                </div>
+
+                <!-- Impak 2 -->
+                <div class="p-3.5 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h3 class="font-bold text-slate-900 flex items-center gap-2 text-xs sm:text-base">
+                        <i class="fa-solid fa-bed-pulse text-amber-600 shrink-0"></i>
+                        <span>2. Tekanan Pengoperasian Dwi-Blok (A & B)</span>
+                    </h3>
+                    <p class="text-[11px] sm:text-xs leading-relaxed text-slate-600">
+                        Dengan pembukaan dan pengoperasian penuh <strong>Blok B (Kompleks Baharu)</strong> bersebelahan Blok A, liputan lokasi bertugas kini berganda. Nisbah PPP kepada katil pesakit (Staff-to-Bed Ratio) menjadi terlalu tegang. Staf terpaksa menampung syif bertugas tambahan di pelbagai unit kritikal.
+                    </p>
+                </div>
+
+                <!-- Impak 3 -->
+                <div class="p-3.5 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h3 class="font-bold text-slate-900 flex items-center gap-2 text-xs sm:text-base">
+                        <i class="fa-solid fa-clock-rotate-left text-purple-600 shrink-0"></i>
+                        <span>3. Peningkatan Masa Menunggu & Triage</span>
+                    </h3>
+                    <p class="text-[11px] sm:text-xs leading-relaxed text-slate-600">
+                        Kekurangan PPP di Jabatan Kecemasan dan Trauma (ETD) serta Klinik Pakar menjejaskan kelajuan proses <em>triage</em>, penstabilan pesakit zon merah/kuning, dan prosedur minor. Ini berisiko meningkatkan masa menunggu pesakit dan menjejaskan kualiti penjagaan pesakit.
+                    </p>
+                </div>
+
+                <!-- Impak 4 -->
+                <div class="p-3.5 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h3 class="font-bold text-slate-900 flex items-center gap-2 text-xs sm:text-base">
+                        <i class="fa-solid fa-heart-pulse text-blue-600 shrink-0"></i>
+                        <span>4. Kelesuan Staf (Burnout) & OT Meningkat</span>
+                    </h3>
+                    <p class="text-[11px] sm:text-xs leading-relaxed text-slate-600">
+                        Kerja lebih masa (OT) dan tuntutan syif on-call yang kerap terpaksa dijalankan bagi menutupi lompang 81 jawatan tersebut. Ini membawa kepada kelesuan fizikal dan mental (burnout), peningkatan cuti sakit, serta pertambahan kos emolumen OT Hospital.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cadangan Tindakan Strategik -->
+            <div class="p-3.5 sm:p-5 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-900 space-y-2">
+                <h3 class="font-bold text-xs sm:text-sm text-teal-950 flex items-center gap-2">
+                    <i class="fa-solid fa-compass-drafting text-teal-700 shrink-0"></i>
+                    <span>Cadangan & Syor Penyelesaian Strategik</span>
+                </h3>
+                <ul class="list-disc pl-4 sm:pl-5 space-y-1 text-[11px] sm:text-xs text-teal-800">
+                    <li><strong>Proses Penarikan Semula (Recall):</strong> Melakukan semakan berfasa untuk menarik balik 81 PPP yang dipinjamkan ke PTJ lain bagi menampung keperluan mendesak pengoperasian Blok B Hospital Miri.</li>
+                    <li><strong>Penyelarasan Waran Rasmi:</strong> Memohon pihak JKN Sarawak / KKM meluluskan waran baharu khas untuk pengoperasian Kompleks Blok B agar penempatan staf PTJ lain tidak terus meminjam waran hakiki Hospital Miri.</li>
+                    <li><strong>Pengagihan Semula Mengikut Keutamaan:</strong> Memfokuskan staf fizikal sedia ada (190 orang) di unit-unit kritikal seperti Kecemasan, ICU, OT, dan Wad Dwi-Blok.</li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Mobile Sticky Bottom Dock (Khusus Telefon Pintar / Smart Phone Only Nav) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white border-t border-slate-800 sm:hidden flex justify-around py-2 px-1 text-[10px] font-medium no-print">
+        <a href="#kpi-section" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-teal-400 active:text-teal-300">
+            <i class="fa-solid fa-chart-line text-sm"></i>
+            <span>Metrik</span>
+        </a>
+        <a href="#chart-section" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-teal-400 active:text-teal-300">
+            <i class="fa-solid fa-chart-pie text-sm"></i>
+            <span>Carta</span>
+        </a>
+        <a href="#table-section" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-teal-400 active:text-teal-300">
+            <i class="fa-solid fa-table text-sm"></i>
+            <span>Jadual</span>
+        </a>
+        <a href="#impact-section" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-teal-400 active:text-teal-300">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+            <span>Impak</span>
+        </a>
+    </nav>
+
+    <script>
+        // Data Perjawatan
+        const staffingData = [
+            { grade: 'U9 / U10', waran: 4, pengisian: 4, dipinjam: 0, fizikal: 4 },
+            { grade: 'U7', waran: 10, pengisian: 10, dipinjam: 3, fizikal: 7 },
+            { grade: 'U6 / U7', waran: 39, pengisian: 33, dipinjam: 1, fizikal: 32 },
+            { grade: 'U5 / U6', waran: 216, pengisian: 224, dipinjam: 77, fizikal: 147 }
+        ];
+
+        let mainChart, loanChart;
+
+        // Mobile View Switcher (Table vs Card view for smartphones)
+        function switchMobileView(mode) {
+            const tableView = document.getElementById('tableViewContainer');
+            const cardView = document.getElementById('cardViewContainer');
+            const viewTableBtn = document.getElementById('viewTableBtn');
+            const viewCardBtn = document.getElementById('viewCardBtn');
+            const scrollHint = document.getElementById('scrollHint');
+
+            if (mode === 'card') {
+                tableView.classList.add('hidden');
+                cardView.classList.remove('hidden');
+                scrollHint.classList.add('hidden');
+
+                viewCardBtn.className = 'px-2.5 py-1.5 rounded-lg font-bold bg-white text-teal-800 shadow-sm transition';
+                viewTableBtn.className = 'px-2.5 py-1.5 rounded-lg font-medium text-slate-600 transition';
+            } else {
+                cardView.classList.add('hidden');
+                tableView.classList.remove('hidden');
+                scrollHint.classList.remove('hidden');
+
+                viewTableBtn.className = 'px-2.5 py-1.5 rounded-lg font-bold bg-white text-teal-800 shadow-sm transition';
+                viewCardBtn.className = 'px-2.5 py-1.5 rounded-lg font-medium text-slate-600 transition';
+            }
+        }
+
+        // Search Filter for Table and Mobile Cards
+        function filterData() {
+            const input = document.getElementById("tableSearch");
+            const filter = input.value.toUpperCase();
+            
+            // Filter Table Rows
+            const tableRows = document.querySelectorAll("#dataTable .data-row");
+            tableRows.forEach(row => {
+                const text = row.innerText.toUpperCase();
+                row.style.display = text.indexOf(filter) > -1 ? "" : "none";
+            });
+
+            // Filter Mobile Cards
+            const mobileCards = document.querySelectorAll("#cardViewContainer .mobile-card");
+            mobileCards.forEach(card => {
+                const text = card.innerText.toUpperCase();
+                card.style.display = text.indexOf(filter) > -1 ? "" : "none";
+            });
+        }
+
+        function initCharts() {
+            const isMobile = window.innerWidth < 640;
+
+            // 1. Chart Bar Utama
+            const ctxMain = document.getElementById('mainComparisonChart').getContext('2d');
+            if (mainChart) mainChart.destroy();
+
+            mainChart = new Chart(ctxMain, {
+                type: 'bar',
+                data: {
+                    labels: staffingData.map(d => d.grade),
+                    datasets: [
+                        {
+                            label: 'Waran',
+                            data: staffingData.map(d => d.waran),
+                            backgroundColor: 'rgba(59, 130, 246, 0.85)',
+                            borderColor: '#2563eb',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Pengisian',
+                            data: staffingData.map(d => d.pengisian),
+                            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                            borderColor: '#059669',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Dipinjam',
+                            data: staffingData.map(d => d.dipinjam),
+                            backgroundColor: 'rgba(244, 63, 94, 0.85)',
+                            borderColor: '#e11d48',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Fizikal Premis',
+                            data: staffingData.map(d => d.fizikal),
+                            backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                            borderColor: '#d97706',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { 
+                                usePointStyle: true, 
+                                boxWidth: 6,
+                                font: { family: 'Inter', size: isMobile ? 9 : 11 } 
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleFont: { family: 'Inter', size: 11, weight: 'bold' },
+                            bodyFont: { family: 'Inter', size: 10 },
+                            padding: 8,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: isMobile ? 9 : 11 } } },
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter', size: isMobile ? 9 : 11 } } }
+                    }
+                }
+            });
+
+            // 2. Doughnut Chart Pecahan Pinjaman
+            const ctxLoan = document.getElementById('loanBreakdownChart').getContext('2d');
+            if (loanChart) loanChart.destroy();
+
+            loanChart = new Chart(ctxLoan, {
+                type: 'doughnut',
+                data: {
+                    labels: ['U5 (77 orang)', 'U7 (3 orang)', 'U6 (1 orang)'],
+                    datasets: [{
+                        data: [77, 3, 1],
+                        backgroundColor: ['#f43f5e', '#f59e0b', '#3b82f6'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { 
+                                usePointStyle: true, 
+                                boxWidth: 6,
+                                font: { family: 'Inter', size: isMobile ? 9 : 11 } 
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = 81;
+                                    const val = context.raw;
+                                    const pct = ((val / total) * 100).toFixed(1);
+                                    return ` ${context.label}: ${val} orang (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initCharts();
+        };
+
+        // Export CSV
+        function exportCSV() {
+            const rows = [
+                ["Butiran Waran", "Tajuk Perjawatan", "Kod Gaji SSPA", "Jumlah Waran", "Pengisian Hakiki", "Status Waran", "Dipinjam ke PTJ Lain", "Tenaga Kerja Fizikal Premis"],
+                ["482, 718", "Penolong Pegawai Perubatan, Gred U41/U42/U44", "U9/U10", 4, 4, "0", 0, 4],
+                ["495, 719, 1364, 840(a)", "Penolong Pegawai Perubatan, Gred U36", "U7", 10, 10, "0", 3, 7],
+                ["505, 721, 1135, 1368, 2191", "Penolong Pegawai Perubatan, Gred U32 (TBK2)", "U6/U7", 39, 33, "+6 Kosong", 1, 32],
+                ["503, 718, 890, 1087, 1137, 1702, 1196, 1247, 1368, 2196", "Penolong Pegawai Perubatan, Gred U29/U32 (TBK 13)", "U5/U6", 216, 224, "-8 Lebihan", 77, 147],
+                ["JUMLAH KESELURUHAN", "", "", 269, 271, "-2 Net", 81, 190]
+            ];
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            rows.forEach(row => {
+                csvContent += row.map(e => `"${e}"`).join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Analisis_Perjawatan_PPP_Hospital_Miri.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
